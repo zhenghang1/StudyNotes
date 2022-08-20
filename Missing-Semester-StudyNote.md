@@ -1,5 +1,7 @@
 # Missing-Semester Learning Note
 
+> 课程网站：https://missing.csail.mit.edu/2020/
+
 ## Lecture 2: Shell Tools and Scripting 
 
 ### 变量定义
@@ -200,9 +202,53 @@ for arg in reversed(sys.argv[1:]):
 
 文本替换命令：`sed 's/old(regexp)/new/'`，其中s是替换选项（substitution），假如将new一项置为空，即可将匹配的内容删除
 
-### 正则表达式 regexp
+### 正则表达式 regex
+
+已学习并整理，详见[这里](https://github.com/zhenghang1/StudyNotes/blob/master/regex-StudyNote.md)
 
 
+
+### 示例分析
+
+~~~shell
+ssh myserver journalctl
+ | grep sshd
+ | grep "Disconnected from"
+ | sed -E 's/.*Disconnected from (invalid |authenticating )?user (.*) [^ ]+ port [0-9]+( \[preauth\])?$/\2/'
+ | sort | uniq -c
+ | sort -nk1,1 | tail -n10
+ | awk '{print $2}' | paste -sd,
+~~~
+
++ `uniq -c`：`uniq`是用来消除相同的项的工具，其中`-c`的标志表示需要`uniq`在消除相同项的同时统计其出现次数，并且放在第一列（项的前面）
+
++ `sort -nk1,1`：其实是`sort -n -k1,1`，合并的写法，`-n`指的是numeric，根据数字大小进行排序（而非字典序）；`-k`指的是对排序的列进行限制，从第1列到第1列（不加限制的话就是默认对一整行进行排序）
+
++ `tail -n10`：显示其倒数10行，`-n+数字`代表多少行
+
++ `awk '{print $2}'`：打印其第二列的数据
+
++ `paste -sd,`：`paste`命令会将文件以列对齐的方式进行合并，（即将多个文件按列对齐并输出）；此外`-s`标志表示serial，串列进行，效果是将一个文件中的每一行的内容整合到同一行中；`-d+符号`表示串列处理后，各列内容间的间隔符号（此处是,）
+
+  ~~~shell
+  cat file                  #file文件的内容  
+  xiongdan 200
+  lihaihui 233
+  lymlrl 231
+  
+  paste -sd, file
+  xiongdan 200,lihaihui 233,lymlrl 231
+  ~~~
+
+
+
+### awk
+
+`awk`是一种处理文本文件的编程语言，也是一个强大的文本分析工具，其更关注于对列的处理。拥有了`awk`，甚至可以用来完成`grep`和`sed`所能完成的所有任务
+
+
+
+其他一些数据统计方面的内容，暂无需求，不进行整理
 
 ## Lecture 5: Command-line Environment
 
@@ -238,6 +284,34 @@ kill -STOP %1
 
 tmux
 
-+ sessions
-+ windows
-+ panes
++ sessions：一个组，可命名，可包含多个windows
++ windows：可命名，占满整个窗口，可分割为多个pane
++ panes：将一个窗口分为多个长方形的小窗口，每个称为一个pane
+
+tmux中所有的命令都需要先键入前缀快捷键，默认是`Ctrl+b`，可以修改为`Ctrl+a`更加方便，详见[这里](https://blog.csdn.net/lwgkzl/article/details/100799042)
+
+![image-20220820171432819](https://cdn.staticaly.com/gh/zhenghang1/Image@main/img/image-20220820171432819.png)
+
+要kill某个section，只需要在section内键入`ctrl+d`即可
+
+
+
+### 别名alias
+
+为一些较长的命令或较为常用的参数组合设置别名，本质上就是一个文本替换，可以使用如下的命令设置别名：
+
+~~~shell
+alias alias_name="command_to_alias arg1 arg2"
+~~~
+
+注意其中，`=`两端并没有空格，因为`alias`命令只接受一个参数
+
+可以使用如下命令取消别名：`unalias alias_name`
+
+使用如下命令查看当前已有别名：`alias alias_name`
+
+
+
+dotfiles
+
+symlink 纳入版本控制
