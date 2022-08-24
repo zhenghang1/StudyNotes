@@ -312,6 +312,91 @@ alias alias_name="command_to_alias arg1 arg2"
 
 
 
-dotfiles
+### dotfiles
 
-symlink 纳入版本控制
+各种程序的配置文件通常都以dotfile的形式存在，不加赘述
+
+为了方便在新机器上重现自己的配置或者用作分享，可以将自己的dotfiles都放在一个专门的目录并且纳入版本控制，传到github上，并使用symlink将其链接到软件要求的目录中去，使用symlink的[具体方式](https://blog.csdn.net/cumian8165/article/details/108101156)：
+
+~~~shell
+#创建符号链接，其中-s标志是软链接的标志（否则默认硬链接）
+ln -s <path to the file/folder to be linked> <the path of the link to be created>
+
+#删除符号链接，两种方式
+unlink <path-to-symlink>
+rm <path-to-symlink>
+#删除时，注意就算是一个指向目录的链接，也不需要加上/，因为我们只关注这个链接（可视为一个文件）
+~~~
+
+一个dotfiles仓库链接：https://github.com/mathiasbynens/dotfiles
+
+
+
+### 可移植性 portability
+
+在dotfiles中，有些时候要使得配置文件在各个操作系统或shell中都可以适用，有些时候又想要其只在某几台特定设备上可以使用，可以使用条件判断完成这些目标：
+
+~~~shell
+if [[ "$(uname)" == "Linux" ]]; then {do_something}; fi
+
+# Check before using shell-specific features
+if [[ "$SHELL" == "zsh" ]]; then {do_something}; fi
+
+# You can also make it machine-specific
+if [[ "$(hostname)" == "myServer" ]]; then {do_something}; fi
+~~~
+
+或者可以不同的配置文件间共享相同的配置：
+如在bash和zsh中共享相同的别名设置，将其独立为一个`~/.aliases`文件，并在`~/.bashrc`和`~/.zshrc`中分别加入：
+
+~~~shell
+# Test if ~/.aliases exists and source it
+if [ -f ~/.aliases ]; then
+    source ~/.aliases
+fi
+~~~
+
+
+
+### Remote Machines
+
+利用ssh连接远程服务器
+
+~~~shell
+ssh foo@bar.mit.edu
+~~~
+
+其中，`foo`是用户名，`bar.mit.edu`是目标服务器，也可以使用ip来表示
+
+直接如上面连接，会进入到服务器的shell界面，如果想留在本地shell中而只是在服务器上执行，可以在后面加上待执行的命令，如果想要在服务器端执行多个命令，需要用`''`括起来，如
+
+~~~shell
+ssh foobar@server ls | grep PATTERN 	#单个命令
+
+ssh foobar@server 'ls | grep PATTERN' 	#多个命令
+~~~
+
+
+
+接下来介绍了生成和向远程主机发送ssh keys的方式，详见[这里](https://missing.csail.mit.edu/2020/command-line/)
+
+
+
+通过ssh发送文件的方式，主要有三种：
+
++ `ssh`+`tee`的方式，最简单，传输少量文件时可以这样，tee读取标准输入，并写入一个文件
++ `scp`：用来传输大量文件，因为其可以递归地传输文件/目录，命令写法如下：`scp path/to/local_file remote_host:path/to/remote_file`
++ `rsync`：与`scp`类似，但提供了更多特性，如1、可以比较本地目录和远方目录的文件差异，只复制不存在的文件；2、可以通过`--partial`的标志，重启未进行完的传输（`scp`必须一次完整传输完）；3、等等
+
+
+
+端口转发
+
+很多软件会监听固定的某个端口，有些时候需要用本地的某个端口去对应另一个端口，可以使用类似`ssh -L 9999:localhost:8888 foobar@remote_server`的命令来进行端口转发
+
+
+
+`~/.ssh/config`配置文件：可以在里面配置好常用的用户名和验证文件等，便于登录操作的进行，如下：
+
+![image-20220824170545791](https://cdn.staticaly.com/gh/zhenghang1/Image@main/img/image-20220824170545791.png)
+
