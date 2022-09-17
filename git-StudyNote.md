@@ -8,15 +8,16 @@
 
 #### 1.1.1 git diff
 
-不加参数，表示工作目录(Working tree)和暂存区域快照(index)之间的差异，也就是修改后未暂存add的内容
-
+不加参数，表示当前工作目录(Working tree)和暂存区域快照(index)之间的差异，也就是修改后未暂存add的内容
 加--cached（或--staged），表已经暂存add，但未commit的部分与上次commit的内容的区别
+
+此外，diff也可以加上两个参数\<commit\>-A和\<commit\>-B：`git diff <commit>-A <commit>-B <file>`，表示从A到B两个commit间，file所产生的变化（注意顺序是从A到B），可以省略\<commit\>-B，此时表示从\<commit\>-A到HEAD的变化
 
 
 
 #### 1.1.2 git rm
 
-rm会取消跟踪，并且从目录中删掉该文件
+rm会取消跟踪，**并且从目录中删掉该文件**
 
 若只是想取消跟踪，则需要加上--cached
 
@@ -37,6 +38,8 @@ rm会取消跟踪，并且从目录中删掉该文件
 一个常用的选项是 -p，用来显示每次提交的内容差异。
 
 也可以加上 -2 来仅显示**最近两次提交**：  
+
+一个常用的命令：`git log --all --graph --decorate`
 
 git log的一些选项
 
@@ -70,6 +73,32 @@ HEAD格式：
 - 也可以用数字，HEAD\~0，表示当前版本，HEAD\~1表示上一个版本，以此类推
 
 其中，git reset HEAD表示取消暂存
+
+
+
+#### 1.1.6 git checkout
+
+本质上是进行reference的切换，也就是切换`HEAD`的指向
+
++ 直接使用命令`git checkout <reference>`会将`HEAD`移到reference处（reference可以是一个sha-1 hash，也可以是一个类似master的别名）
++ 也可以加上一个`<file>`，表示将某个文件恢复到某次commit时的状态
+
+
+
+#### 1.1.7 git add
+
+将对应文件添加到暂存区域
+
+若在一个文件中有多个修改位置，只想暂存其中某些部分而跳过另一些部分，可以使用`-p`或`--patch`标志，会进入一个交互界面，对每个修改位置进行选择
+配合上`git commit <file>`和`git checkout <file>`，就可以将那些不需要的修改位置（比如一些debug的输出信息）自动清除掉
+
+对于`-p`或`--patch`标志，其实它是一个`-i`或`--interactive`命令的子命令，使用`-i`或`--interactive`标志，会进入一个交互界面，可以选择一系列的子命令
+
+
+
+#### 1.1.8 git stash
+
+使用`git stash`命令后，会将当前所做的未提交的修改全部临时存到某个位置，并将文件内容恢复到上一个commit所处的状态（注意已经暂存的内容也会被临时存起），再次使用`git stash pop`命令即可将内容恢复
 
 
 
@@ -191,7 +220,7 @@ git remote add <shortname> <url>
   git fetch <远程主机名> <远程分支名>:<本地分支名>
   ~~~
 
-  此时，只会将对应分支拉到本地对应分支处（不存在的话自动创建）
+  此时，只会将对应分支拉到本地对应分支处（不存在的话自动创建），**master分支和HEAD依旧指向原有的commit**
 
 + git pull
 
@@ -229,7 +258,16 @@ git remote show [remote-name]
   git remote rename <current-name> <target-name>
   ~~~
 
-  
+
+
+
+#### 1.5.6 仓库克隆
+
+使用`git clone`命令：`git clone <URL> <target-folder> `表示将URL对应处的仓库克隆到某个目录中
+
+`git clone`默认会将仓库整个完整地copy一份，包括所有的提交历史等，在克隆一些commit历史非常大的仓库时，可以加上`--shallow`参数，git会忽略掉所有的commit历史，只copy当前所在的snapshot
+
+
 
 ### 1.6 标签tag
 
