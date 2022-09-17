@@ -400,3 +400,18 @@ ssh foobar@server 'ls | grep PATTERN' 	#多个命令
 
 ![image-20220824170545791](https://cdn.staticaly.com/gh/zhenghang1/Image@main/img/image-20220824170545791.png)
 
+
+
+
+
+## Lecture 6: Version Control (Git)
+
+已学习，并结合Pro Git的内容一并整理至这份笔记[git-StudyNote](https://github.com/zhenghang1/StudyNotes/blob/master/git-StudyNote.md)
+
+
+
+## Lecture 8: Metaprogramming
+
+### Build systems
+
+make的学习
