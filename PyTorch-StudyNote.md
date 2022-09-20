@@ -18,6 +18,41 @@ img.show()
 
 
 
+### Tensor
+
+#### tensor.view(*shape)
+
+`view()`的对象是torch中的Tensor类型，作用是返回一个有**相同数据**但不同大小的 Tensor，通俗一点，就是**改变矩阵维度**，相当于 Numpy 中的` resize() `或者 Tensorflow 中的 `reshape() `，也类似`torch.reshape()`
+
+~~~python
+x = torch.randn(4, 4)
+print(x.size())
+y = x.view(16)
+print(y.size())
+z = x.view(-1, 8)  # -1表示该维度取决于其它维度大小，即（4*4）/ 8
+print(z.size())
+m = x.view(2, 2, 4) # 也可以变为更多维度
+print(m.size())
+
+'''
+output:
+torch.Size([4, 4])
+torch.Size([16])
+torch.Size([2, 8])
+torch.Size([2, 2, 4])
+'''
+~~~
+
+特殊用法：只输入一个参数-1，`a = a.view(-1)`，即将该Tensor转化为一维的
+
+**注意：**实际使用中，`view()`之前常需要加一个`contiguous()`，保证Tensor是连续的才可以作为`view()`的对象
+
+~~~python
+data.contiguous().view(-1)
+~~~
+
+
+
 ### Dataset类
 
 pytorch中的数据集类
